@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Hemisfério Radar — Painel administrativo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./radar.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="Hemisfério Digital">
+        <span class="brand-mark">H</span>
+        <span><strong>HEMISFÉRIO</strong><small>DIGITAL</small></span>
+      </a>
+      <nav class="nav" aria-label="Administração">
+        <a href="/admin">← Painel administrativo</a>
+        <a class="active" href="/admin/radar/">Hemisfério Radar</a>
+      </nav>
+      <div class="sidebar-foot">
+        <span class="dot"></span>
+        <span>Rotina editorial: 3 em 3 horas</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">INTELIGÊNCIA EDITORIAL</p>
+          <h1>Hemisfério Radar</h1>
+          <p class="subtitle">Pautas, matérias e checagens preparadas pela IA para decisão da Redação.</p>
+        </div>
+        <div class="top-actions">
+          <span id="userLabel" class="user-label">Verificando acesso…</span>
+          <button id="refreshBtn" class="button secondary" type="button">Atualizar painel</button>
+        </div>
+      </header>
+
+      <section id="authPanel" class="auth-panel hidden" aria-live="polite">
+        <div>
+          <p class="eyebrow">ACESSO RESTRITO</p>
+          <h2>Entre com o mesmo usuário do painel</h2>
+          <p>O Radar usa a autenticação já existente do Supabase.</p>
+        </div>
+        <form id="loginForm" class="login-form">
+          <label>E-mail<input id="emailInput" type="email" autocomplete="username" required></label>
+          <label>Senha<input id="passwordInput" type="password" autocomplete="current-password" required></label>
+          <button class="button primary" type="submit">Entrar</button>
+          <p id="loginMessage" class="form-message"></p>
+        </form>
+      </section>
+
+      <div id="dashboard" class="hidden">
+        <section class="stats" aria-label="Resumo do Radar">
+          <article><span>Matérias prontas</span><strong id="readyCount">0</strong><small>Aguardando editor</small></article>
+          <article><span>Para apuração</span><strong id="investigateCount">0</strong><small>Precisam de checagem</small></article>
+          <article><span>Descartadas</span><strong id="discardedCount">0</strong><small>Baixa relevância ou rejeitadas</small></article>
+          <article><span>Publicadas</span><strong id="publishedCount">0</strong><small>Enviadas ao portal</small></article>
+        </section>
+
+        <section class="status-strip">
+          <div><span class="pulse"></span><strong>Monitoramento 24h</strong></div>
+          <div><span>Frequência</span><strong>3 em 3 horas</strong></div>
+          <div><span>Último evento</span><strong id="lastEvent">—</strong></div>
+          <div><span>Publicação</span><strong>Somente com aprovação humana</strong></div>
+        </section>
+
+        <section class="toolbar">
+          <div class="filter-row" role="group" aria-label="Filtrar matérias">
+            <button class="filter active" type="button" data-filter="aguardando_editor">Aguardando editor</button>
+            <button class="filter" type="button" data-filter="apurar">Pedir apuração</button>
+            <button class="filter" type="button" data-filter="publicada">Publicadas</button>
+            <button class="filter" type="button" data-filter="rejeitada">Descartadas</button>
+            <button class="filter" type="button" data-filter="all">Todas</button>
+          </div>
+        </section>
+
+        <section>
+          <div id="emptyState" class="empty hidden">
+            <strong>Nenhuma matéria neste filtro.</strong>
+            <span>Quando o Radar produzir conteúdo, ele aparecerá aqui.</span>
+          </div>
+          <div id="matterList" class="matter-list"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="matterDialog" class="matter-dialog">
+    <form method="dialog" class="dialog-head">
+      <div>
+        <span id="dialogStatus" class="status-pill">Aguardando editor</span>
+        <h2 id="dialogHeading">Matéria</h2>
+      </div>
+      <button class="icon-button" value="cancel" aria-label="Fechar">×</button>
+    </form>
+
+    <div class="dialog-body">
+      <section class="editorial-grid">
+        <label>Chapéu<input id="fieldChapeu" type="text"></label>
+        <label class="wide">Título SEO / Google Discover<textarea id="fieldTituloSeo" rows="2"></textarea></label>
+        <label class="wide">Linha fina<textarea id="fieldLinhaFina" rows="2"></textarea></label>
+        <label class="wide">Título do card<textarea id="fieldTituloCard" rows="2"></textarea></label>
+        <label>Categoria<input id="fieldCategoria" type="text"></label>
+        <label>Autor<input id="fieldAutor" type="text" value="Redação" readonly></label>
+      </section>
+
+      <div class="quality-row">
+        <div><span>Relevância</span><strong id="qualityRelevance">—</strong></div>
+        <div><span>Confiança</span><strong id="qualityConfidence">—</strong></div>
+        <div><span>Risco editorial</span><strong id="qualityRisk">—</strong></div>
+      </div>
+
+      <label class="block-label">Lead<textarea id="fieldLead" rows="3"></textarea></label>
+      <label class="block-label">Matéria completa <small>HTML aceito pelo CMS</small><textarea id="fieldContent" rows="16"></textarea></label>
+
+      <section class="social-panel">
+        <h3>Instagram</h3>
+        <label>Chamada<textarea id="fieldInstagramCall" rows="2"></textarea></label>
+        <label>Post no feed<textarea id="fieldInstagramFeed" rows="6"></textarea></label>
+        <label>Story<textarea id="fieldInstagramStory" rows="4"></textarea></label>
+        <label>CTA do Story<input id="fieldInstagramCta" type="text"></label>
+      </section>
+
+      <section class="source-panel">
+        <h3>Fontes e checagem</h3>
+        <div id="sourcesList" class="sources-list"></div>
+      </section>
+    </div>
+
+    <div class="dialog-actions">
+      <p id="dialogMessage" class="form-message"></p>
+      <div>
+        <button id="discardBtn" class="button danger-outline" type="button">Descartar</button>
+        <button id="investigateBtn" class="button warning-outline" type="button">Pedir apuração</button>
+        <button id="saveBtn" class="button secondary" type="button">Salvar edição</button>
+        <button id="publishBtn" class="button primary" type="button">Publicar</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="./radar-app.mjs"></script>
+</body>
+</html>
