@@ -26,3 +26,22 @@ Vídeo de coluna do O Globo (Malu Gaspar) sobre o caso Master no STF. Referênci
   - legendas curtas (2–4 palavras), brancas, em caixa escura translúcida, no terço inferior
   - marca d'água da empresa no topo, discreta
 - **Ritmo:** troca de imagem a cada 2–8 s; a imagem de apoio entra no nome citado e sai no fim da frase, sempre com corte seco
+
+## videos/memoria-bone-azul-barcellos.mp4
+
+Reel do Portal Hemisfério Digital sobre a origem do bairro Boné Azul e Aníbal Barcellos. Referência do **formato memória/história local**, com narração em off (sem apresentador em quadro).
+
+- **Formato:** vertical 9:16 (720×1280), 1min57s
+- **Estrutura:** abre com o gancho ("Em Macapá existe um bairro chamado Boné Azul, e o nome não surgiu por acaso") → contexto da época → quem era o personagem → o que fez, em ordem cronológica → a marca que deixou → fechamento com nome e apelido do personagem
+- **Visual de colagem:**
+  - fundos alternando papel kraft/bege, azul Hemisfério e azul-marinho escuro
+  - fotos antigas "coladas" com moldura branca e fita adesiva, levemente inclinadas
+  - etiquetas em fonte de máquina de escrever (fundo preto ou branco): nomes, datas, locais ("PRES. JOÃO FIGUEIREDO", "NASCIDO EM 1918")
+  - destaques em caixa amarela com texto preto ("O COMANDANTE", "DEPUTADO FEDERAL CONSTITUINTE")
+  - anos grandes em letras recortadas ("1986", "1918 — 2011")
+  - palavras-chave entre aspas em papel amarelo ("Efetivamente")
+  - recorte de jornal "Macapá · Amapá" fixo no rodapé, papel rasgado e bolinhas amarelas como elementos recorrentes
+  - círculo amarelo marcando o personagem em foto de grupo
+  - mosquinha no canto superior direito, crédito da foto em letra miúda
+- **Legendas:** curtas, em caixa escura, números e anos em amarelo
+- **Encerramento:** vinheta do Portal Hemisfério Digital
