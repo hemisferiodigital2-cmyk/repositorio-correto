@@ -45,3 +45,18 @@ Reel do Portal Hemisfério Digital sobre a origem do bairro Boné Azul e Aníbal
   - mosquinha no canto superior direito, crédito da foto em letra miúda
 - **Legendas:** curtas, em caixa escura, números e anos em amarelo
 - **Encerramento:** vinheta do Portal Hemisfério Digital
+
+## videos/reportagem-narrada-piaui-pdvsa.mp4
+
+Reel da revista piauí sobre a PDVSA (Angélica Santa Cruz). Referência de **reportagem narrada só com imagens de arquivo**, para divulgar uma matéria longa. A identidade visual é da piauí: na adaptação, marca, cores e mosquinha são as do Hemisfério Digital.
+
+- **Formato:** vertical 9:16 (720×1280), 1min40s, cerca de 30 cortes (um a cada 3 s)
+- **Estrutura:** abre direto no fato e no personagem central ("Criada em 1976, a gigante estatal PDVSA...") → contexto em números → episódios concretos contados como cena ("Era uma cilada") → gancho atual → a autora se apresenta na narração ("Na piauí, eu, Angélica Santa Cruz, conto como...") → frase-síntese → chamada para ler ("Leia no site ou na revista impressa")
+- **Imagem:**
+  - só material de arquivo e de apoio: vídeos e fotos em tela cheia, sem apresentador em quadro
+  - fotos e vídeos horizontais aparecem inteiros, sobre fundo preto, ou empilhados em três faixas horizontais na mesma tela
+  - algumas imagens de arquivo em preto e branco
+  - movimento constante: vídeo sempre que possível; nas fotos, aproximação lenta
+  - fechamento com a página da matéria impressa desfocada e uma ilustração da autora por cima
+- **Texto na tela:** quase nenhum. Só legendas pequenas, em caixa branca arredondada com letra preta, no terço inferior, e a marca discreta no canto superior esquerdo. Nomes de veículo e termos-chave aparecem em negrito ou entre aspas dentro da legenda
+- **Som:** narração em tom de reportagem, com trilha discreta por baixo
