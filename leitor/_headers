@@ -1,0 +1,9 @@
+# Cabeçalhos para o Cloudflare Pages
+/sw.js
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/
+  Cache-Control: no-cache
+/manifest.webmanifest
+  Content-Type: application/manifest+json

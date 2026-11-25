@@ -3,8 +3,8 @@
   "short_name": "Leitor",
   "description": "Leitor de PDF para celular: o texto se ajusta à tela.",
   "lang": "pt-BR",
-  "start_url": "/leitor/",
-  "scope": "/leitor/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f4ecd8",
   "theme_color": "#f4ecd8",
@@ -37,5 +37,5 @@
       "type": "image/svg+xml"
     }
   ],
-  "id": "/leitor/"
+  "id": "./"
 }

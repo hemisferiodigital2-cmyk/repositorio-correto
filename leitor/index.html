@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+  <script>if (!/\/$|\.html$/.test(location.pathname)) location.replace(location.pathname + '/' + location.search + location.hash);</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Leitor</title>
   <meta name="description" content="Leitor de PDF para celular: transforma o PDF em texto adaptado à tela, como um e-reader." />
@@ -10,10 +11,10 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Leitor" />
-  <link rel="manifest" href="/leitor/manifest.webmanifest" />
-  <link rel="icon" type="image/svg+xml" href="/leitor/icon.svg" />
-  <link rel="apple-touch-icon" href="/leitor/icon-180.png" />
-  <link rel="stylesheet" href="/leitor/leitor.css" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <link rel="apple-touch-icon" href="./icon-180.png" />
+  <link rel="stylesheet" href="./leitor.css" />
 </head>
 <body data-theme="sepia">
   <!-- Biblioteca -->
@@ -186,6 +187,6 @@
 
   <div id="toast" class="toast" role="status" hidden></div>
 
-  <script type="module" src="/leitor/leitor-app.mjs"></script>
+  <script type="module" src="./leitor-app.mjs"></script>
 </body>
 </html>

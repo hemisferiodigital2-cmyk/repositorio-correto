@@ -1,8 +1,7 @@
 // Service worker do Leitor: guarda o app no aparelho para funcionar offline.
-const VERSION = 'leitor-v2';
+const VERSION = 'leitor-v3';
 const SHELL = [
   './',
-  './index.html',
   './leitor.css',
   './leitor-app.mjs',
   './leitor-core.mjs',
@@ -30,15 +29,15 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
-  const url = new URL(req.url);
-  if (url.origin !== location.origin || !url.pathname.startsWith('/leitor/')) return;
+  // só cuida dos arquivos do próprio app (funciona em /leitor/ ou na raiz de um domínio)
+  if (!req.url.startsWith(self.registration.scope)) return;
 
   // Página: rede primeiro (para receber atualizações), cache como reserva.
   if (req.mode === 'navigate') {
     event.respondWith(
       fetch(req)
-        .then((res) => { const copy = res.clone(); caches.open(VERSION).then((c) => c.put('./index.html', copy)); return res; })
-        .catch(() => caches.match('./index.html')),
+        .then((res) => { const copy = res.clone(); if (res.ok && !res.redirected) caches.open(VERSION).then((c) => c.put('./', copy)); return res; })
+        .catch(() => caches.match('./')),
     );
     return;
   }

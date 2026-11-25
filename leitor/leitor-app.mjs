@@ -799,8 +799,8 @@ applySettings();
 history.replaceState({ view: 'library' }, '', location.pathname);
 renderLibrary().catch((err) => { console.error(err); toast('Armazenamento indisponível neste navegador.'); });
 
-if ('serviceWorker' in navigator && location.protocol === 'https:') {
-  navigator.serviceWorker.register('/leitor/sw.js', { scope: '/leitor/' }).catch(() => {});
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
 
 // exposto para testes automatizados
