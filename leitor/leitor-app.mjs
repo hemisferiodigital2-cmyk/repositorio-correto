@@ -92,7 +92,7 @@ function applySettings() {
   document.body.dataset.theme = settings.theme;
   document.body.classList.toggle('paged', settings.mode === 'paged');
   document.body.classList.toggle('scroll', settings.mode === 'scroll');
-  document.querySelector('meta[name="theme-color"]').setAttribute('content', THEME_COLOR[settings.theme] || '#f4ecd8');
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLOR[settings.theme] || '#f4ecd8');
   els.fontSizeOut.textContent = settings.size;
   for (const group of els.settings.querySelectorAll('.choice')) {
     const key = group.dataset.setting;
@@ -207,8 +207,16 @@ async function renderLibrary() {
     li.querySelector('.book-title').textContent = book.title;
     li.querySelector('.book-info').textContent = `${book.pageCount} pág. no PDF · ${status}`;
     li.querySelector('.book-open').addEventListener('click', () => openBook(book.id));
-    li.querySelector('.book-del').addEventListener('click', async () => {
-      if (!confirm(`Remover “${book.title}” da biblioteca?`)) return;
+    const del = li.querySelector('.book-del');
+    del.addEventListener('click', async () => {
+      // confirmação no próprio botão: o primeiro toque pede confirmação, o segundo remove
+      if (!del.classList.contains('armed')) {
+        del.classList.add('armed');
+        del.setAttribute('aria-label', 'Toque de novo para remover');
+        toast(`Toque na lixeira de novo para remover “${book.title}”.`);
+        setTimeout(() => { del.classList.remove('armed'); del.setAttribute('aria-label', 'Remover'); }, 3500);
+        return;
+      }
       await Promise.all([idb.del('books', book.id), idb.del('content', book.id), idb.del('files', book.id)]);
       renderLibrary();
     });
@@ -298,7 +306,7 @@ async function openBook(id) {
   els.library.hidden = true;
   els.reader.hidden = false;
   els.reader.classList.remove('ui');
-  if (history.state?.view !== 'reader') history.pushState({ view: 'reader', id }, '', '#ler');
+  try { if (history.state?.view !== 'reader') history.pushState({ view: 'reader', id }, '', '#ler'); } catch { /* sem histórico */ }
   await relayout();
 }
 
@@ -796,7 +804,7 @@ const standalone = window.navigator.standalone || window.matchMedia('(display-mo
 els.installTip.hidden = !(isIOS && !standalone);
 
 applySettings();
-history.replaceState({ view: 'library' }, '', location.pathname);
+try { history.replaceState({ view: 'library' }, '', location.pathname); } catch { /* sem histórico */ }
 renderLibrary().catch((err) => { console.error(err); toast('Armazenamento indisponível neste navegador.'); });
 
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {

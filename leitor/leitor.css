@@ -82,6 +82,7 @@ svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width:
 .book-bar { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
 .book-bar span { display: block; height: 100%; background: var(--accent); }
 .book-del { color: var(--muted); }
+.book-del.armed { color: #fff; background: #c0392b; }
 
 .empty { text-align: center; color: var(--muted); padding: 32px 12px; line-height: 1.5; }
 .empty svg { width: 56px; height: 56px; stroke-width: 1.4; margin-bottom: 8px; }
