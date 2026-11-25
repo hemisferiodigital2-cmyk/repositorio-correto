@@ -1,5 +1,5 @@
 import * as pdfjsLib from './vendor/pdfjs/pdf.min.mjs';
-import { normalizeItem, reflow, readingMinutes, titleFromFilename } from './leitor-core.mjs';
+import { normalizeItem, reflow, readingMinutes, titleFromFilename, extractMarks } from './leitor-core.mjs';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('./vendor/pdfjs/pdf.worker.min.mjs', import.meta.url).href;
 const CMAP_URL = new URL('./vendor/pdfjs/cmaps/', import.meta.url).href;
@@ -16,6 +16,7 @@ const els = {
   original: $('originalView'), originalTitle: $('originalTitle'), originalScroll: $('originalScroll'),
   originalClose: $('originalClose'), originalPrev: $('originalPrev'), originalNext: $('originalNext'),
   busy: $('busy'), busyText: $('busyText'), busyFill: $('busyFill'), toast: $('toast'),
+  pwdModal: $('pwdModal'), pwdForm: $('pwdForm'), pwdInput: $('pwdInput'), pwdMsg: $('pwdMsg'), pwdCancel: $('pwdCancel'),
 };
 
 /* ------------------------------------------------------------------ */
@@ -132,6 +133,50 @@ function debounce(fn, ms) {
 }
 
 /* ------------------------------------------------------------------ */
+/* PDF protegido por senha                                             */
+/* ------------------------------------------------------------------ */
+
+function askPassword(wrong) {
+  return new Promise((resolve) => {
+    const busyWasOpen = !els.busy.hidden;
+    els.busy.hidden = true;
+    els.pwdMsg.textContent = wrong ? 'Senha incorreta. Tente de novo.' : 'Este PDF é protegido. Digite a senha para abrir.';
+    els.pwdMsg.classList.toggle('err', !!wrong);
+    els.pwdInput.value = '';
+    els.pwdModal.hidden = false;
+    setTimeout(() => els.pwdInput.focus(), 50);
+    const done = (value) => {
+      els.pwdModal.hidden = true;
+      els.pwdForm.onsubmit = null;
+      els.pwdCancel.onclick = null;
+      if (busyWasOpen && value !== null) els.busy.hidden = false;
+      resolve(value);
+    };
+    els.pwdForm.onsubmit = (e) => { e.preventDefault(); done(els.pwdInput.value); };
+    els.pwdCancel.onclick = () => done(null);
+  });
+}
+
+/** Abre o PDF, pedindo a senha quando necessário. */
+async function openPdf(buffer, knownPassword) {
+  let password = knownPassword || undefined;
+  for (;;) {
+    try {
+      const pdf = await pdfjsLib.getDocument({
+        data: new Uint8Array(buffer.slice(0)), password, cMapUrl: CMAP_URL, cMapPacked: true,
+      }).promise;
+      return { pdf, password };
+    } catch (err) {
+      if (err?.name !== 'PasswordException') throw err;
+      const wrong = err.code === pdfjsLib.PasswordResponses.INCORRECT_PASSWORD;
+      const typed = await askPassword(wrong);
+      if (typed === null) { const e = new Error('cancelado'); e.name = 'Cancelled'; throw e; }
+      password = typed;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Biblioteca                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -179,14 +224,18 @@ async function importFile(file) {
   try {
     const buffer = await file.arrayBuffer();
     // o pdf.js transfere o buffer para o worker; guardamos uma cópia para salvar
-    pdf = await pdfjsLib.getDocument({ data: new Uint8Array(buffer.slice(0)), cMapUrl: CMAP_URL, cMapPacked: true }).promise;
+    const opened = await openPdf(buffer);
+    pdf = opened.pdf;
     const pages = [];
     for (let i = 1; i <= pdf.numPages; i++) {
       busy(`Reorganizando página ${i} de ${pdf.numPages}…`, i / pdf.numPages);
       const page = await pdf.getPage(i);
       const vp = page.getViewport({ scale: 1 });
       const content = await page.getTextContent();
-      pages.push({ items: content.items.filter((it) => 'str' in it).map(normalizeItem), width: vp.width, height: vp.height });
+      // formas pequenas desenhadas (marcadores de lista que não são texto)
+      let marks = [];
+      try { marks = extractMarks(await page.getOperatorList(), pdfjsLib.OPS); } catch { /* segue sem */ }
+      pages.push({ items: content.items.filter((it) => 'str' in it).map(normalizeItem), width: vp.width, height: vp.height, marks });
       page.cleanup();
     }
     const blocks = reflow(pages);
@@ -206,6 +255,8 @@ async function importFile(file) {
       id, title, pageCount: pdf.numPages, minutes: readingMinutes(blocks), color: coverColor(title),
       addedAt: now, openedAt: now, anchor: 0, percent: 0,
     };
+    // a senha fica só neste aparelho, para reabrir o arquivo (imagens e página original)
+    if (opened.password) book.password = opened.password;
     await idb.put('files', { id, data: buffer });
     await idb.put('content', { id, blocks });
     await idb.put('books', book);
@@ -217,7 +268,7 @@ async function importFile(file) {
   } catch (err) {
     console.error(err);
     busy(null);
-    toast(err?.name === 'PasswordException' ? 'PDF protegido por senha não é suportado.' : 'Não consegui ler este PDF.');
+    if (err?.name !== 'Cancelled') toast('Não consegui ler este PDF.');
   } finally {
     if (pdf) pdf.destroy();
   }
@@ -280,10 +331,18 @@ function renderBlocks() {
       const cap = document.createElement('figcaption');
       cap.textContent = `Página ${b.page}`;
       el.append(ph, cap);
+    } else if (b.type === 'li') {
+      el = document.createElement('p');
+      el.className = 'li' + (b.marker.length > 2 ? ' wide' : '');
+      const mk = document.createElement('span');
+      mk.className = 'mk';
+      mk.textContent = b.marker;
+      el.append(mk, document.createTextNode(b.text));
+    } else if (b.type === 'table') {
+      el = renderTable(b);
     } else {
       el = document.createElement(b.type);
       el.textContent = b.text;
-      if (b.type === 'p' && /^([•▪●◦‣–—-]|\d{1,3}[.)])\s/.test(b.text)) el.className = 'first';
     }
     el.dataset.i = i;
     frag.appendChild(el);
@@ -304,13 +363,60 @@ function renderBlocks() {
   state.blockEls.forEach((el, i) => { if (state.blocks[i].type === 'image') state.observer.observe(el); });
 }
 
+const NUMERIC = /^[\s\d.,%()+\-−–R$€US]*\d[\s\d.,%()+\-−–]*$/;
+function renderTable(b) {
+  const wrap = document.createElement('div');
+  wrap.className = 'tbl';
+  const table = document.createElement('table');
+  const [head, ...body] = b.rows.length > 1 ? b.rows : [null, ...b.rows];
+  if (head) {
+    const thead = table.createTHead().insertRow();
+    for (const h of head) { const th = document.createElement('th'); th.textContent = h; thead.appendChild(th); }
+  }
+  const tbody = table.createTBody();
+  for (const row of body) {
+    const tr = tbody.insertRow();
+    row.forEach((v, k) => {
+      const td = tr.insertCell();
+      td.textContent = v;
+      td.dataset.label = head?.[k] || '';
+      if (!v) td.classList.add('empty');
+      if (k > 0 && NUMERIC.test(v)) td.classList.add('num');
+    });
+  }
+  const cap = document.createElement('button');
+  cap.type = 'button';
+  cap.className = 'tbl-src';
+  cap.textContent = `Tabela · ver original (p. ${b.page})`;
+  cap.addEventListener('click', (e) => { e.stopPropagation(); showOriginal(b.page); });
+  cap.addEventListener('pointerup', (e) => e.stopPropagation());
+  wrap.append(table, cap);
+  wrap.dataset.cols = b.rows[0].length;
+  return wrap;
+}
+
+/** Tabelas que não cabem na largura viram "cartões" (uma linha da tabela por cartão). */
+function fitTables() {
+  for (const wrap of els.flow.querySelectorAll('.tbl')) {
+    wrap.classList.remove('cards');
+    const table = wrap.querySelector('table');
+    const avail = wrap.clientWidth;
+    const tooNarrow = avail / Number(wrap.dataset.cols) < 68;
+    if (tooNarrow || table.scrollWidth > avail + 1) wrap.classList.add('cards');
+  }
+}
+
 function loadPdf() {
   if (!state.pdfPromise) {
     const id = state.book.id;
     state.pdfPromise = idb.get('files', id).then((file) => {
       if (!file) throw new Error('arquivo ausente');
-      return pdfjsLib.getDocument({ data: new Uint8Array(file.data), cMapUrl: CMAP_URL, cMapPacked: true }).promise;
-    }).then((pdf) => {
+      return openPdf(file.data, state.book?.password);
+    }).then(({ pdf, password }) => {
+      if (state.book && password && password !== state.book.password) {
+        state.book.password = password;
+        idb.put('books', { ...state.book });
+      }
       if (state.book?.id !== id) { pdf.destroy(); throw new Error('livro fechado'); }
       state.pdf = pdf;
       return pdf;
@@ -371,6 +477,7 @@ function colOf(el) {
 async function relayout() {
   if (!state.book) return;
   const anchor = state.anchor;
+  fitTables();
   if (settings.mode === 'paged') {
     const flow = els.flow;
     const pagerW = els.pager.clientWidth;

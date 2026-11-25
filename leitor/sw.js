@@ -1,5 +1,5 @@
 // Service worker do Leitor: guarda o app no aparelho para funcionar offline.
-const VERSION = 'leitor-v1';
+const VERSION = 'leitor-v2';
 const SHELL = [
   './',
   './index.html',
@@ -9,6 +9,7 @@ const SHELL = [
   './manifest.webmanifest',
   './icon.svg',
   './icon-180.png',
+  './icon-192.png',
   './icon-512.png',
   './vendor/pdfjs/pdf.min.mjs',
   './vendor/pdfjs/pdf.worker.min.mjs',

@@ -169,6 +169,21 @@
     </div>
   </div>
 
+  <!-- Senha -->
+  <div id="pwdModal" class="busy pwd-layer" hidden>
+    <form id="pwdForm" class="busy-card pwd" autocomplete="off">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      <h3>PDF protegido</h3>
+      <p id="pwdMsg">Este PDF é protegido. Digite a senha para abrir.</p>
+      <input id="pwdInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Senha do PDF" />
+      <div class="pwd-actions">
+        <button type="button" id="pwdCancel">Cancelar</button>
+        <button type="submit" class="primary">Abrir</button>
+      </div>
+      <p class="pwd-note">A senha fica salva só neste aparelho.</p>
+    </form>
+  </div>
+
   <div id="toast" class="toast" role="status" hidden></div>
 
   <script type="module" src="/leitor/leitor-app.mjs"></script>
