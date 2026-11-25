@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Leitor</title>
+  <meta name="description" content="Leitor de PDF para celular: transforma o PDF em texto adaptado à tela, como um e-reader." />
+  <meta name="theme-color" content="#f4ecd8" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Leitor" />
+  <link rel="manifest" href="/leitor/manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="/leitor/icon.svg" />
+  <link rel="apple-touch-icon" href="/leitor/icon-180.png" />
+  <link rel="stylesheet" href="/leitor/leitor.css" />
+</head>
+<body data-theme="sepia">
+  <!-- Biblioteca -->
+  <section id="library" class="view">
+    <header class="lib-head">
+      <div>
+        <h1>Leitor</h1>
+        <p class="lib-sub">Seus PDFs, do tamanho da sua tela.</p>
+      </div>
+      <button id="libSettingsBtn" class="icon-btn" type="button" aria-label="Tema">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg>
+      </button>
+    </header>
+
+    <label class="open-btn">
+      <input id="fileInput" type="file" accept="application/pdf,.pdf" hidden />
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      <span>Abrir PDF</span>
+    </label>
+
+    <ul id="bookList" class="book-list" aria-label="Biblioteca"></ul>
+
+    <div id="emptyState" class="empty" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v5h5M8 13h8M8 17h5"/></svg>
+      <p><strong>Nenhum livro ainda.</strong></p>
+      <p>Toque em <em>Abrir PDF</em> e escolha um arquivo do iPhone, do iCloud ou do Drive. O texto é reorganizado para caber na tela, e tudo fica salvo só neste aparelho.</p>
+    </div>
+
+    <p class="install-tip" id="installTip" hidden>
+      Dica: no Safari, toque em <strong>Compartilhar</strong> → <strong>Adicionar à Tela de Início</strong> para usar como app, inclusive offline.
+    </p>
+  </section>
+
+  <!-- Leitor -->
+  <section id="reader" class="view" hidden>
+    <div id="pager" class="pager">
+      <article id="flow" class="flow"></article>
+    </div>
+
+    <header id="topBar" class="bar top-bar">
+      <button id="backBtn" class="icon-btn" type="button" aria-label="Voltar à biblioteca">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <h2 id="bookTitle" class="bar-title"></h2>
+      <button id="tocBtn" class="icon-btn" type="button" aria-label="Sumário">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      </button>
+      <button id="fontBtn" class="icon-btn text-btn" type="button" aria-label="Ajustes de leitura">Aa</button>
+    </header>
+
+    <footer id="bottomBar" class="bar bottom-bar">
+      <input id="progressRange" type="range" min="0" max="1000" value="0" aria-label="Posição no livro" />
+      <div class="progress-info">
+        <span id="pageInfo"></span>
+        <span id="percentInfo"></span>
+      </div>
+    </footer>
+
+    <div id="miniProgress" class="mini-progress" aria-hidden="true"></div>
+  </section>
+
+  <!-- Painel de ajustes -->
+  <div id="sheetBackdrop" class="backdrop" hidden></div>
+  <section id="settingsSheet" class="sheet" hidden aria-label="Ajustes de leitura">
+    <div class="sheet-grip"></div>
+    <div class="row">
+      <span class="row-label">Tamanho</span>
+      <div class="seg">
+        <button type="button" data-act="font-" aria-label="Diminuir letra"><span class="small-a">A</span></button>
+        <output id="fontSizeOut">19</output>
+        <button type="button" data-act="font+" aria-label="Aumentar letra"><span class="big-a">A</span></button>
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-label">Fonte</span>
+      <div class="seg choice" data-setting="font">
+        <button type="button" data-value="serif" class="f-serif">Serifada</button>
+        <button type="button" data-value="sans" class="f-sans">Sem serifa</button>
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-label">Tema</span>
+      <div class="seg choice themes" data-setting="theme">
+        <button type="button" data-value="light" class="sw sw-light" aria-label="Claro"></button>
+        <button type="button" data-value="sepia" class="sw sw-sepia" aria-label="Sépia"></button>
+        <button type="button" data-value="dark" class="sw sw-dark" aria-label="Escuro"></button>
+        <button type="button" data-value="black" class="sw sw-black" aria-label="Preto"></button>
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-label">Espaçamento</span>
+      <div class="seg choice" data-setting="spacing">
+        <button type="button" data-value="compact">Justo</button>
+        <button type="button" data-value="normal">Normal</button>
+        <button type="button" data-value="airy">Amplo</button>
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-label">Margens</span>
+      <div class="seg choice" data-setting="margin">
+        <button type="button" data-value="narrow">Estreitas</button>
+        <button type="button" data-value="normal">Normais</button>
+        <button type="button" data-value="wide">Largas</button>
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-label">Alinhamento</span>
+      <div class="seg choice" data-setting="align">
+        <button type="button" data-value="left">À esquerda</button>
+        <button type="button" data-value="justify">Justificado</button>
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-label">Modo</span>
+      <div class="seg choice" data-setting="mode">
+        <button type="button" data-value="paged">Páginas</button>
+        <button type="button" data-value="scroll">Rolagem</button>
+      </div>
+    </div>
+    <button id="originalBtn" class="wide-btn" type="button">Ver página original do PDF</button>
+  </section>
+
+  <!-- Sumário -->
+  <section id="tocSheet" class="sheet toc" hidden aria-label="Sumário">
+    <div class="sheet-grip"></div>
+    <h3>Sumário</h3>
+    <ol id="tocList"></ol>
+  </section>
+
+  <!-- Página original -->
+  <section id="originalView" class="original" hidden>
+    <header class="bar top-bar visible">
+      <button id="originalClose" class="icon-btn" type="button" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <h2 id="originalTitle" class="bar-title"></h2>
+      <button id="originalPrev" class="icon-btn" type="button" aria-label="Página anterior">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button id="originalNext" class="icon-btn" type="button" aria-label="Próxima página">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+    </header>
+    <div id="originalScroll" class="original-scroll"></div>
+  </section>
+
+  <!-- Processamento -->
+  <div id="busy" class="busy" hidden>
+    <div class="busy-card">
+      <div class="spinner"></div>
+      <p id="busyText">Preparando…</p>
+      <div class="busy-bar"><span id="busyFill"></span></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script type="module" src="/leitor/leitor-app.mjs"></script>
+</body>
+</html>

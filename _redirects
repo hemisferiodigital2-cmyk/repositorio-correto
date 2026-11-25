@@ -1,3 +1,4 @@
 /admin/radar       /admin/radar/index.html  200
 /admin/radar/*     /admin/radar/index.html  200
+/leitor            /leitor/index.html       200
 /*                 /index.html              200
